@@ -4,8 +4,11 @@ const express = require('express');
 const ejsLayouts = require('express-ejs-layouts');
 const session = require("express-session");
 const passport = require("./config/ppConfig");
+const flash = require("connect-flash");
 
 const authController =  require('./controllers/auth');
+const testController = require("./controllers/test");
+const loggedIn = require("./middleware/isLoggedIn");
 
 const app = express();
 
@@ -22,17 +25,25 @@ app.use(session({
 }));
 app.use(passport.initialize()); // Has to be after the session use 
 app.use(passport.session());
+app.use(flash());
+app.use((req, res, next) => {
+  res.locals.alerts = req.flash();
+  res.locals.currentUser = req.user;
+
+  next();
+});
 
 app.get('/', function(req, res) {
   console.log(`User is ${req.user ? req.user.name : "not logged in"}`);
-  res.render('index', { user: req.user });
+  res.render('index');
 });
 
-app.get('/profile', function(req, res) {
-  res.render('profile', { user: req.user });
+app.get('/profile', loggedIn, (req, res) => {
+  res.render('profile');
 });
 
 app.use('/auth', authController);
+app.use("/", loggedIn, testController);
 
 var server = app.listen(process.env.PORT || 3000);
 
