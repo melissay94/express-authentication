@@ -24,11 +24,12 @@ app.use(passport.initialize()); // Has to be after the session use
 app.use(passport.session());
 
 app.get('/', function(req, res) {
-  res.render('index');
+  console.log(`User is ${req.user ? req.user.name : "not logged in"}`);
+  res.render('index', { user: req.user });
 });
 
 app.get('/profile', function(req, res) {
-  res.render('profile');
+  res.render('profile', { user: req.user });
 });
 
 app.use('/auth', authController);

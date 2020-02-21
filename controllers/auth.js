@@ -20,7 +20,9 @@ router.post("/signup", (req, res) => {
   }).then(([user, created]) => {
     if (created) {
       console.log("User created");
-      res.redirect("/");
+      passport.authenticate("local", {
+        successRedirect: "/"
+      })(req, res);
     } else {
       console.log("User already exists");
       res.redirect("/auth/signup");
@@ -39,5 +41,12 @@ router.post("/login", passport.authenticate("local", {
   successRedirect: "/",
   failureRedirect: "/auth/login"
 }));
+
+router.get("/logout", (req, res) => {
+  req.logout();
+  res.redirect("/");
+});
+
+
 
 module.exports = router;
